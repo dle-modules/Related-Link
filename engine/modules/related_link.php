@@ -77,7 +77,12 @@ if(!$content) {
 	if($count_row['max_id'] != $news_id) {
 		$tpl->load_template( 'related_link.tpl' );
 		
-		$sql_result = $db->query("SELECT * FROM " . PREFIX . "_post LEFT JOIN " . PREFIX . "_post_extras ON (" . PREFIX . "_post.id=" . PREFIX . "_post_extras.news_id) WHERE approve=1 AND {$category_count} id > $news_id {$not_id} ORDER BY id ASC LIMIT $limit");
+		if($count_row['min_id'] != $news_id)
+			$limits = $limit - 1;
+		else
+			$limits = $limit;
+		
+		$sql_result = $db->query("SELECT * FROM " . PREFIX . "_post LEFT JOIN " . PREFIX . "_post_extras ON (" . PREFIX . "_post.id=" . PREFIX . "_post_extras.news_id) WHERE approve=1 AND {$category_count} id > $news_id {$not_id} ORDER BY id ASC LIMIT $limits");
 		$count_out = $sql_result->num_rows;
 		include (ENGINE_DIR . '/modules/show.custom.php');
 
