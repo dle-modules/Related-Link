@@ -14,10 +14,12 @@ Copyright (c) 2017 PunPun
 
 defined('DATALIFEENGINE') || die( "Hacking attempt!" );
 
-$news_id = is_numeric($news_id) && $news_id > 0 ? intval($news_id) : false;
+$news_id = is_numeric($news_id) && intval($news_id) > 0 ? intval($news_id) : false;
 
 if(!$news_id)
 	return;
+
+$limit = is_numeric($limit) && intval($limit) > 3 ? intval($limit) : 5;
 
 $allow_cache = ($config['version_id'] >= '10.2') ? $config['allow_cache'] == '1' : $config['allow_cache'] == "yes";
 if(!$allow_cache) {
@@ -37,11 +39,9 @@ if(!$content) {
 
 	$count_row = $db->super_query("SELECT COUNT(*) as count, MAX(id) as max_id, MIN(id) as min_id FROM " . PREFIX . "_post WHERE {$category_count} approve=1");
 
-	if($count_row['count'] < 5)
+	if($count_row['count'] < $limit)
 		$limit = $count_row['count'];
 	else {
-		$limit = 5;
-
 		if($count_row['max_id'] == $news_id || $count_row['min_id'] == $news_id)
 			$limit = $limit - 1;
 		
