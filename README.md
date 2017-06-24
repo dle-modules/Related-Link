@@ -1,7 +1,7 @@
 # Related Link
 ![version](https://img.shields.io/badge/version-1.0-green.svg?style=flat-square "Version")
 ![DLE](https://img.shields.io/badge/DLE-10.2_--_11.x_(UTF--8)-red.svg?style=flat-square "DLE Version")
-[![CC BY-NC-SA License](https://img.shields.io/badge/license-CC_BY--NC--SA_3.0-blue.svg?style=flat-square)](https://github.com/Gameerr/Ene-Pm/blob/master/LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/dle-modules/Related-Link/blob/master/License)
 
 **Модуль DLE Related Link** предназначен для создания релевантой кольцевой переликовки новостей по категории в полной новости. Страницы, связанные в кольцо, будут иметь намного больший статистический вес. А релевантные данные повышат кликабельность и заинтересованость пользователей вашего сайта.
 # Требования к системе
