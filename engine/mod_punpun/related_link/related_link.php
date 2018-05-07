@@ -14,11 +14,8 @@ Copyright (c) 2018 PunPun
 
 defined('DATALIFEENGINE') || die("Hacking attempt!");
 
-if ($config['allow_multi_category']) {
-	return;
-}
-
 $news_id = is_numeric($news_id) && intval($news_id) > 0 ? intval($news_id) : false;
+$not_id = empty($not_id) ? false : trim(strip_tags(stripslashes($not_id)));
 
 if (!$news_id) {
 	return;
@@ -31,12 +28,19 @@ if (!$config['allow_cache']) {
 	$is_change = true;
 }
 
-$content = dle_cache("news_related_link", $config["skin"] . $news_id, false);
+$content = dle_cache("news_related_link", $config["skin"] . $news_id . $not_id . $limit, false);
 if ($content) {
 	echo $content;
 } else {
-	$category = "category IN ('" . $category_id . "')";
-
+	if ($config['allow_multi_category']) {
+		$category = intval($category_id);
+		$category = "category LIKE '{$category},%'";
+	} else {
+		$category = "category IN ('" . $category_id . "')";
+	}
+	
+	$category .= $not_id ? " AND id NOT IN('" . str_replace(',', "','", $not_id) . "')" : false;
+	
 	$tpl->load_template('mod_punpun/related_link/related_link.tpl');
 	$sql_calc = $db->super_query("SELECT COUNT(*) as count, MAX(id) as max_id, MIN(id) as min_id FROM " . PREFIX . "_post WHERE {$category} AND approve='1'");
 	if ($sql_calc['count']<3) {
@@ -96,7 +100,7 @@ if ($content) {
 
 	$tpl->compile('related_block');
 	$tpl->clear();
-	create_cache("news_related_link", $tpl->result['related_block'], $config["skin"] . $news_id, false);
+	create_cache("news_related_link", $tpl->result['related_block'], $config["skin"] . $news_id . $not_id . $limit, false);
 	echo $tpl->result['related_block'];
 }
 ?>
