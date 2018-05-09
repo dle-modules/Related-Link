@@ -34,7 +34,7 @@ if ($content) {
 } else {
 	if ($config['allow_multi_category']) {
 		$category = intval($category_id);
-		$category = "category LIKE '{$category},%'";
+		$category = "(category LIKE '{$category},%' OR category = '{$category}')";
 	} else {
 		$category = "category IN ('" . $category_id . "')";
 	}
@@ -82,10 +82,6 @@ if ($content) {
 		}
 	}
 	
-	if ($is_change) {
-		$config['allow_cache'] = false;
-	}
-	
 	$tpl->load_template('mod_punpun/related_link/related_block.tpl');
 
 	if (trim($tpl->result['content']) != "") {
@@ -101,6 +97,9 @@ if ($content) {
 	$tpl->compile('related_block');
 	$tpl->clear();
 	create_cache("news_related_link", $tpl->result['related_block'], $config["skin"] . $news_id . $not_id . $limit, false);
+	if ($is_change) {
+		$config['allow_cache'] = false;
+	}
 	echo $tpl->result['related_block'];
 }
 ?>
