@@ -1,18 +1,13 @@
 <?php
-/*
-=====================================================
-Related Link
------------------------------------------------------
-Author: PunPun
------------------------------------------------------
-Site: https://punpun.name/
------------------------------------------------------
-Copyright (c) 2018 PunPun
-=====================================================
-Данный код защищен авторскими правами
-*/
+/**
+ * Related Link
+ *
+ * @copyright 2018 LazyDev
+ * @version   1.3.0
+ * @link      https://lazydev.pro
+ */
 
-defined('DATALIFEENGINE') || die("Hacking attempt!");
+defined('DATALIFEENGINE') || die('Hacking attempt!');
 
 $news_id = is_numeric($news_id) && intval($news_id) > 0 ? intval($news_id) : false;
 $not_id = empty($not_id) ? false : trim(strip_tags(stripslashes($not_id)));
@@ -28,7 +23,8 @@ if (!$config['allow_cache']) {
 	$is_change = true;
 }
 
-$content = dle_cache("news_related_link", $config["skin"] . $news_id . $not_id . $limit, false);
+$content = dle_cache('news_related_link', $config['skin'] . $news_id . $not_id . $limit, true);
+
 if ($content) {
 	echo $content;
 } else {
@@ -39,11 +35,11 @@ if ($content) {
 		$category = "category IN ('" . $category_id . "')";
 	}
 	
-	$category .= $not_id ? " AND id NOT IN('" . str_replace(',', "','", $not_id) . "')" : false;
+	$category .= $not_id ? " AND id NOT IN('" . str_replace(',', "','", $not_id) . "')" : '';
 	
-	$tpl->load_template('mod_punpun/related_link/related_link.tpl');
+	$tpl->load_template('related_link/related_link.tpl');
 	$sql_calc = $db->super_query("SELECT COUNT(*) as count, MAX(id) as max_id, MIN(id) as min_id FROM " . PREFIX . "_post WHERE {$category} AND approve='1'");
-	if ($sql_calc['count']<3) {
+	if ($sql_calc['count'] < 3) {
 		return;
 	}
 	
@@ -74,32 +70,38 @@ if ($content) {
 		$sql_result = $db->query("SELECT * FROM ((SELECT * FROM " . PREFIX . "_post LEFT JOIN " . PREFIX . "_post_extras ON (" . PREFIX . "_post.id=" . PREFIX . "_post_extras.news_id) WHERE approve='1' AND {$category} AND id<'{$news_id}' ORDER BY id DESC LIMIT {$limit_back_news}) UNION (SELECT * FROM " . PREFIX . "_post LEFT JOIN " . PREFIX . "_post_extras ON (" . PREFIX . "_post.id=" . PREFIX . "_post_extras.news_id) WHERE approve='1' AND {$category} AND id>'{$news_id}' ORDER BY id ASC LIMIT {$limit})) as r ORDER BY r.id ASC");
 	}
 
-	include ENGINE_DIR . '/modules/show.custom.php';
-
+	if (file_exists(ENGINE_DIR . '/classes/plugins.class.php')) {
+		include_once (DLEPlugins::Check(ENGINE_DIR . '/modules/show.custom.php'));
+	} else {
+		include ENGINE_DIR . '/modules/show.custom.php';
+	}
+	
 	if ($config['files_allow']) {
-		if (strpos($tpl->result['content'], "[attachment=") !== false) {
+		if (strpos($tpl->result['content'], '[attachment=') !== false) {
 			$tpl->result['content'] = show_attach($tpl->result['content'], $attachments);
 		}
 	}
 	
-	$tpl->load_template('mod_punpun/related_link/related_block.tpl');
+	$tpl->load_template('related_link/related_block.tpl');
 
-	if (trim($tpl->result['content']) != "") {
+	if (trim($tpl->result['content']) != '') {
 		$tpl->set("{content}", $tpl->result['content']);
-		$tpl->set_block("'\\[content\\](.*?)\\[/content\\]'si", "\\1");
-		$tpl->set_block("'\\[not-content\\](.*?)\\[/not-content\\]'si", "");
+		$tpl->set_block("'\\[content\\](.*?)\\[/content\\]'si", '\\1');
+		$tpl->set_block("'\\[not-content\\](.*?)\\[/not-content\\]'si", '');
 	} else {
-		$tpl->set("{content}", "");
-		$tpl->set_block("'\\[content\\](.*?)\\[/content\\]'si", "");
-		$tpl->set_block("'\\[not-content\\](.*?)\\[/not-content\\]'si", "\\1");
+		$tpl->set("{content}", '');
+		$tpl->set_block("'\\[content\\](.*?)\\[/content\\]'si", '');
+		$tpl->set_block("'\\[not-content\\](.*?)\\[/not-content\\]'si", '\\1');
 	}
 
 	$tpl->compile('related_block');
 	$tpl->clear();
-	create_cache("news_related_link", $tpl->result['related_block'], $config["skin"] . $news_id . $not_id . $limit, false);
+	create_cache('news_related_link', $tpl->result['related_block'], $config['skin'] . $news_id . $not_id . $limit, true);
+	
 	if ($is_change) {
 		$config['allow_cache'] = false;
 	}
+	
 	echo $tpl->result['related_block'];
 }
 ?>
